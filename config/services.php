@@ -14,6 +14,13 @@ return [
     |
     */
 
+    'rate_provider' => [
+        'base_uri'       => env('RATE_PROVIDER_BASE_URI', 'https://api.coingecko.com/api/v3/'),
+        'timeout'        => env('RATE_PROVIDER_TIMEOUT', 10),
+        'max_attempts'   => env('RATE_PROVIDER_MAX_ATTEMPTS', 3),
+        'retry_delay_ms' => env('RATE_PROVIDER_RETRY_DELAY_MS', 100),
+    ],
+
     'postmark' => [
         'key' => env('POSTMARK_API_KEY'),
     ],
