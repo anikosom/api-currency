@@ -10,9 +10,11 @@ use App\Services\RateProvider\Exceptions\RateProviderUnavailableException;
 interface RateProviderClientInterface
 {
     /**
-     * Fetch price data for a currency id against a base currency.
+     * Fetch price data for one or more currency ids against a base currency.
+     *
+     * @param  array<int, string>  $currencyIds
      *
      * @throws RateProviderUnavailableException
      */
-    public function fetchPrices(string $currencyId, string $baseCurrency): RatePricesDTO;
+    public function fetchPrices(array $currencyIds, string $baseCurrency): RatePricesDTO;
 }

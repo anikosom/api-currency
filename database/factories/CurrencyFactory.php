@@ -17,8 +17,11 @@ class CurrencyFactory extends Factory
      */
     public function definition(): array
     {
+        $name = fake()->unique()->words(2, true);
+        assert(is_string($name));
+
         return [
-            'name' => ucfirst(fake()->unique()->words(2, true)),
+            'name' => ucfirst($name),
             'code' => strtoupper(fake()->unique()->lexify('???')),
         ];
     }

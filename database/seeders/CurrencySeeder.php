@@ -14,7 +14,6 @@ class CurrencySeeder extends Seeder
      */
     private const CURRENCIES = [
         'USD'  => 'US Dollar',
-        'EUR'  => 'Euro',
         'BTC'  => 'Bitcoin',
         'ETH'  => 'Ethereum',
         'USDT' => 'Tether',

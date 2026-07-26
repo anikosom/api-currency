@@ -13,16 +13,18 @@ class CurrencyRateSeeder extends Seeder
      */
     public function run(): void
     {
-        $usdCurrency = Currency::where('code', 'USD')->first();
+        $baseCurrencyCode = config('rate_provider.base_currency');
 
-        if (! $usdCurrency) {
+        $baseCurrency = Currency::where('code', $baseCurrencyCode)->first();
+
+        if (! $baseCurrency) {
             return;
         }
 
-        $currencies = Currency::whereNot('code', 'USD')->get();
+        $currencies = Currency::whereNot('code', $baseCurrencyCode)->get();
         foreach ($currencies as $currency) {
             CurrencyRate::updateOrCreate(
-                ['currency_id' => $currency->id, 'base_currency_id' => $usdCurrency->id],
+                ['currency_id' => $currency->id, 'base_currency_id' => $baseCurrency->id],
                 ['rate' => fake()->randomFloat(6, 0.000001, 100000)],
             );
         }

@@ -16,18 +16,20 @@ final class GuzzleRateProviderClient implements RateProviderClientInterface
         private readonly ClientInterface $client,
     ) {}
 
-    public function fetchPrices(string $currencyId, string $baseCurrency): RatePricesDTO
+    public function fetchPrices(array $currencyIds, string $baseCurrency): RatePricesDTO
     {
+        $ids = implode(',', $currencyIds);
+
         try {
             $response = $this->client->request('GET', 'simple/price', [
                 'query' => [
-                    'ids'           => $currencyId,
+                    'ids'           => $ids,
                     'vs_currencies' => $baseCurrency,
                 ],
             ]);
         } catch (GuzzleException $exception) {
             throw new RateProviderUnavailableException(
-                __('rate_provider.unavailable', ['currency_id' => $currencyId, 'base_currency' => $baseCurrency]),
+                __('rate_provider.unavailable', ['currency_id' => $ids, 'base_currency' => $baseCurrency]),
                 previous: $exception,
             );
         }
@@ -36,7 +38,7 @@ final class GuzzleRateProviderClient implements RateProviderClientInterface
 
         if (! is_array($decoded)) {
             throw new RateProviderUnavailableException(
-                __('rate_provider.malformed_response', ['currency_id' => $currencyId, 'base_currency' => $baseCurrency]),
+                __('rate_provider.malformed_response', ['currency_id' => $ids, 'base_currency' => $baseCurrency]),
             );
         }
 

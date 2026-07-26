@@ -1,6 +1,6 @@
 SAIL = ./vendor/bin/sail
 
-.PHONY: up down restart install artisan migrate fresh seed test pint pint-test tinker shell logs ps
+.PHONY: up down restart install artisan migrate fresh seed test pint pint-test phpstan tinker shell logs ps
 
 up: ## Start containers in the background
 	$(SAIL) up -d
@@ -33,6 +33,9 @@ pint: ## Fix code style
 
 pint-test: ## Check code style without fixing
 	$(SAIL) pint --test
+
+phpstan: ## Run static analysis
+	$(SAIL) exec -T laravel.test ./vendor/bin/phpstan analyse --memory-limit=1G
 
 tinker: ## Open a tinker REPL
 	$(SAIL) artisan tinker
