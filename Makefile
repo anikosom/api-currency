@@ -1,6 +1,6 @@
 SAIL = ./vendor/bin/sail
 
-.PHONY: up down restart install artisan migrate fresh seed test pint pint-test phpstan tinker shell logs ps
+.PHONY: up down restart install artisan migrate fresh seed test pint pint-test phpstan tinker shell logs ps queue queue-redis schedule
 
 up: ## Start containers in the background
 	$(SAIL) up -d
@@ -24,6 +24,15 @@ fresh: ## Drop all tables, re-migrate and seed
 
 seed: ## Run database seeders
 	$(SAIL) artisan db:seed
+
+queue: ## Run the default queue worker
+	$(SAIL) artisan queue:work
+
+queue-redis: ## Run the redis-connection queue worker (rate-change notifications)
+	$(SAIL) artisan queue:work redis
+
+schedule: ## Run the scheduler (dispatches UpdateCurrencyRatesJob every 10 minutes)
+	$(SAIL) artisan schedule:work
 
 test: ## Run the test suite
 	$(SAIL) artisan test

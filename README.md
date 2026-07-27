@@ -1,58 +1,59 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Currency Rates
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A Laravel + Vue app that tracks BTC, ETH and USDT exchange rates against USD, polling [CoinGecko](https://www.coingecko.com/) on a schedule, storing every observation, and emailing an alert when a rate moves sharply. The homepage is a small dashboard with a live-updating chart per currency.
 
-## About Laravel
+## Stack
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- Laravel 13 (PHP 8.5), PostgreSQL, Redis, Guzzle
+- Vue 3 + Vite + Tailwind CSS v4
+- Laravel Sail for local development
+- Pint (style), Larastan/PHPStan level 8 (static analysis), PHPUnit (tests)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Requirements
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- Docker (for Sail) — or a local PHP 8.3+/PostgreSQL/Redis setup
+- Node.js + npm
 
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Setup
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+cp .env.example .env
+make install
+make up
+make artisan cmd="key:generate"
+make fresh          # migrate + seed
+npm install
+npm run build        # or `npm run dev`
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+The app is served at `http://localhost`.
 
-## Contributing
+### Makefile targets
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+`make up` / `make down` / `make restart` - Start / stop / restart the Sail containers
+`make install`                           - `composer install` inside the container
+`make artisan cmd="..."`                 - Run any artisan command, e.g. `make artisan cmd="route:list"`
+`make migrate`                           - Run pending migrations
+`make fresh`                             - Drop all tables, re-migrate and seed
+`make seed`                              - Run database seeders
+`make queue`                             - Run the default queue worker
+`make queue-redis`                       - Run the redis-connection queue worker (rate-change notifications)
+`make schedule`                          - Run the scheduler (dispatches `UpdateCurrencyRatesJob` every 10 minutes)
+`make test`                              - Run the test suite
+`make pint` / `make pint-test`           - Fix / check code style
+`make phpstan`                           - Run static analysis
+`make tinker`                            - Open a Tinker
+`make shell`                             - Open a shell in the app container
+`make logs` / `make ps`                  - Tail container logs / show container status
 
-## Code of Conduct
+Run `make schedule` and `make queue-redis` in separate terminals
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Configuration
 
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+`RATE_PROVIDER_BASE_URI`         - CoinGecko API base URL
+`RATE_PROVIDER_TIMEOUT`          - HTTP timeout (seconds)
+`RATE_PROVIDER_MAX_ATTEMPTS`     - Retry for provider requests
+`RATE_PROVIDER_RETRY_DELAY_MS`   - Backoff for provider requests
+`RATE_PROVIDER_BASE_CURRENCY`    - Currency all rates are quoted against (default `USD`)
+`RATE_CHANGE_THRESHOLD_PERCENT`  - % move that triggers an email alert
+`RATE_CHANGE_NOTIFICATION_EMAIL` - Recipient for rate-change alerts
